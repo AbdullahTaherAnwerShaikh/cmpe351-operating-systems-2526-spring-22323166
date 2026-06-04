@@ -17,6 +17,29 @@ struct Process {
     Process* next;
 };
 
+void run_fcfs(Process* head, int n) {
+    int t = 0, completed = 0;
+    while (completed < n) {
+        Process* best = nullptr;
+        for (Process* curr = head; curr != nullptr; curr = curr->next) {
+            if (curr->rem > 0 && curr->arrival <= t) {
+                if (!best || curr->arrival < best->arrival) {
+                    best = curr;
+                }
+            }
+        }
+        if (best) {
+            t += best->rem;
+            best->rem = 0;
+            best->wt = t - best->arrival - best->burst;
+            completed++;
+        } else {
+            t++;
+        }
+    }
+    cout << "FCFS simulation complete. Total time taken: " << t << "\n";
+}
+
 int main(int argc, char *argv[])
 {
 int quantum = 0;
@@ -75,5 +98,6 @@ int quantum = 0;
     }
     infile.close();
     cout << "Successfully parsed " << process_count << " processes. "<<quantum<<")\n";
+    run_fcfs(head, process_count);
 return 0;
 }
