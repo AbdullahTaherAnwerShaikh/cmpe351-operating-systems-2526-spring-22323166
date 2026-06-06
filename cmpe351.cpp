@@ -17,6 +17,31 @@ struct Process {
     Process* next;
 };
 
+Process* clone_list(Process* head) {
+    Process* new_head = nullptr;
+    Process* new_tail = nullptr;
+    
+    for (Process* curr = head; curr != nullptr; curr = curr->next) {
+        Process* p = new Process;
+        p->id = curr->id;
+        p->burst = curr->burst;
+        p->arrival = curr->arrival;
+        p->priority = curr->priority;
+        p->rem = curr->rem;
+        p->wt = curr->wt;
+        p->next = nullptr;
+        
+        if (!new_head) {
+            new_head = p;
+            new_tail = p;
+        } else {
+            new_tail->next = p;
+            new_tail = p;
+        }
+    }
+    return new_head;
+}
+
 void run_fcfs(Process* head, int n) {
     int t = 0, completed = 0;
     while (completed < n) {
@@ -98,6 +123,13 @@ int quantum = 0;
     }
     infile.close();
     cout << "Successfully parsed " << process_count << " processes. "<<quantum<<")\n";
-    run_fcfs(head, process_count);
+
+    for (int algo = 1; algo <= 1; ++algo) {
+        Process* current_run = clone_list(head);
+        
+        if (algo == 1) {
+            run_fcfs(current_run, process_count);
+        }
+    }
 return 0;
 }
