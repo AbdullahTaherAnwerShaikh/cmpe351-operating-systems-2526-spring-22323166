@@ -42,27 +42,42 @@ Process* clone_list(Process* head) {
     return new_head;
 }
 
-void run_fcfs(Process* head, int n) {
+void run_algorithm(int algo_type, Process* head, int n) {
     int t = 0, completed = 0;
     while (completed < n) {
         Process* best = nullptr;
+        
         for (Process* curr = head; curr != nullptr; curr = curr->next) {
             if (curr->rem > 0 && curr->arrival <= t) {
-                if (!best || curr->arrival < best->arrival) {
+                if (!best) {
+                    best = curr;
+                } else if (algo_type == 1 && curr->arrival < best->arrival) {
+                    best = curr;
+                } else if ((algo_type == 2 || algo_type == 3) && curr->rem < best->rem) {
                     best = curr;
                 }
             }
         }
+        
         if (best) {
-            t += best->rem;
-            best->rem = 0;
-            best->wt = t - best->arrival - best->burst;
-            completed++;
+            if (algo_type == 1 || algo_type == 2) { 
+                t += best->rem;
+                best->rem = 0;
+                best->wt = t - best->arrival - best->burst;
+                completed++;
+            } else if (algo_type == 3) { 
+                best->rem--;
+                t++;
+                if (best->rem == 0) {
+                    best->wt = t - best->arrival - best->burst;
+                    completed++;
+                }
+            }
         } else {
-            t++;
+            t++; 
         }
     }
-    cout << "FCFS simulation complete. Total time taken: " << t << "\n";
+    cout << "Algorithm " << algo_type << " simulation complete.\n";
 }
 
 int main(int argc, char *argv[])
@@ -124,12 +139,9 @@ int quantum = 0;
     infile.close();
     cout << "Successfully parsed " << process_count << " processes. "<<quantum<<")\n";
 
-    for (int algo = 1; algo <= 1; ++algo) {
+    for (int algo = 1; algo <= 3; ++algo) {
         Process* current_run = clone_list(head);
-        
-        if (algo == 1) {
-            run_fcfs(current_run, process_count);
-        }
+        run_algorithm(algo,current_run, process_count);
     }
 return 0;
 }
