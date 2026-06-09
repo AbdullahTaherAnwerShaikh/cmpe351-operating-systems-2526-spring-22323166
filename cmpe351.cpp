@@ -52,32 +52,62 @@ void run_algorithm(int algo_type, Process* head, int n) {
                 if (!best) {
                     best = curr;
                 } else if (algo_type == 1 && curr->arrival < best->arrival) {
-                    best = curr;
+                    best = curr; //FCFS
                 } else if ((algo_type == 2 || algo_type == 3) && curr->rem < best->rem) {
-                    best = curr;
-                }
+                    best = curr; //SJF
+                } else if ((algo_type == 4 || algo_type ==5) && curr->priority < best->priority) {
+		    best = curr; //Priority
+		}
             }
         }
         
         if (best) {
-            if (algo_type == 1 || algo_type == 2) { 
-                t += best->rem;
-                best->rem = 0;
-                best->wt = t - best->arrival - best->burst;
-                completed++;
-            } else if (algo_type == 3) { 
+	    if (algo_type == 1 || algo_type == 2|| algo_type ==4) {
+		t += best->rem;
+		best->rem = 0;
+		best->wt = t - best->arrival - best->burst;
+		completed++;
+            } else if (algo_type == 3|| algo_type == 5) { 
                 best->rem--;
                 t++;
                 if (best->rem == 0) {
                     best->wt = t - best->arrival - best->burst;
                     completed++;
                 }
-            }
-        } else {
+            } 
+	}else {
             t++; 
         }
     }
     cout << "Algorithm " << algo_type << " simulation complete.\n";
+}
+
+void run_round_robin(Process* head, int n, int quantum) {
+    int t = 0, completed = 0;
+    
+    while (completed < n) {
+        bool executed_in_pass = false;
+        
+        for (Process* temp = head; temp != nullptr; temp = temp->next) {
+            if (temp->rem > 0 && temp->arrival <= t) {
+                int run_time = (temp->rem > quantum) ? quantum : temp->rem;
+                
+                temp->rem -= run_time;
+                t += run_time;
+                executed_in_pass = true;
+                
+                if (temp->rem == 0) {
+                    temp->wt = t - temp->arrival - temp->burst;
+                    completed++;
+                }
+            }
+        }
+        
+        if (!executed_in_pass) {
+            t++;
+        }
+    }
+    cout << "Algorithm 6 (Round Robin) simulation complete.\n";
 }
 
 int main(int argc, char *argv[])
@@ -139,9 +169,13 @@ int quantum = 0;
     infile.close();
     cout << "Successfully parsed " << process_count << " processes. "<<quantum<<")\n";
 
-    for (int algo = 1; algo <= 3; ++algo) {
+    for (int algo = 1; algo <= 6; ++algo) {
         Process* current_run = clone_list(head);
-        run_algorithm(algo,current_run, process_count);
+	if(algo <=5) {
+           run_algorithm(algo,current_run, process_count);
+	} else {
+	   run_round_robin(current_run, process_count, quantum);
+	}
     }
 return 0;
 }
