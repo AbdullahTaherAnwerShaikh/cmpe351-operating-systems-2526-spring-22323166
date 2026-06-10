@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string>
 #include <fstream>
+#include <iomanip>
 using namespace std;
 
 struct Process {
@@ -167,7 +168,11 @@ int quantum = 0;
         }
     }
     infile.close();
-    cout << "Successfully parsed " << process_count << " processes. "<<quantum<<")\n";
+    ofstream outfile(output_file);
+    if (!outfile) {
+        cerr << "Error: Cannot open output file\n";
+        return 1;
+    }
 
     for (int algo = 1; algo <= 6; ++algo) {
         Process* current_run = clone_list(head);
@@ -176,6 +181,23 @@ int quantum = 0;
 	} else {
 	   run_round_robin(current_run, process_count, quantum);
 	}
+
+    outfile << algo;
+        cout << "Result for Algo " << algo << ": " << algo;
+
+        double total_wt = 0;
+        for (Process* curr = current_run; curr != nullptr; curr = curr->next) {
+            outfile << ":" << curr->wt;
+            cout << ":" << curr->wt;
+            total_wt += curr->wt;
+        }
+
+        double awt = (process_count > 0) ? total_wt / process_count : 0.0;
+        
+        outfile << fixed << setprecision(2) << ":" << awt << "\n";
+        cout << fixed << setprecision(2) << ":" << awt << "\n";
     }
+
+    outfile.close();
 return 0;
 }
