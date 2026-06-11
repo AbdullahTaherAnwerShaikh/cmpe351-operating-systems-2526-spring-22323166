@@ -18,6 +18,14 @@ struct Process {
     Process* next;
 };
 
+void free_list(Process* head) {
+    while (head != nullptr) {
+        Process* temp = head;
+        head = head->next;
+        delete temp;
+    }
+}
+
 Process* clone_list(Process* head) {
     Process* new_head = nullptr;
     Process* new_tail = nullptr;
@@ -196,8 +204,11 @@ int quantum = 0;
         
         outfile << fixed << setprecision(2) << ":" << awt << "\n";
         cout << fixed << setprecision(2) << ":" << awt << "\n";
+	free_list(current_run);
     }
 
     outfile.close();
+
+    free_list(head);
 return 0;
 }
